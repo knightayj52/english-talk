@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>English Talk — 나의 영어 회화 연습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F4F0E8; --card:#FFFFFF; --ink:#2A2724; --muted:#8A8278;
+    --coral:#EE6A4D; --coral-soft:#FCEBE6;
+    --teal:#127E78; --teal-soft:#E3F0EE;
+    --amber:#C77F22; --amber-soft:#FBF0DC; --amber-line:#EBD9B4;
+    --line:#E8E1D5;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Inter','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    display:flex; justify-content:center;
+  }
+  .app{width:100%; max-width:480px; height:100vh; height:100dvh; display:flex; flex-direction:column; position:relative;}
+  .screen{display:none; flex:1; min-height:0; flex-direction:column;}
+  .screen.on{display:flex;}
+  button{font-family:inherit; border:none; cursor:pointer; background:none;}
+  input{font-family:inherit;}
+
+  /* ── 공통 ── */
+  .h-display{font-family:'Plus Jakarta Sans','Apple SD Gothic Neo',sans-serif; font-weight:800;}
+  .pad{padding:0 24px;}
+  .brand{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .brand-badge{width:40px; height:40px; border-radius:16px; background:var(--coral); display:flex; align-items:center; justify-content:center; color:#fff;}
+  .brand-label{color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em;}
+
+  /* ── 게이트 ── */
+  #gate{justify-content:center;}
+  .gate-box{padding:0 28px;}
+  .gate-title{font-size:30px; line-height:1.15; margin-top:14px;}
+  .gate-sub{color:var(--muted); font-size:14px; margin-top:10px; line-height:1.5;}
+  .gate-row{display:flex; gap:8px; margin-top:24px;}
+  .gate-input{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; font-size:16px; outline:none; color:var(--ink);}
+  .gate-input:focus{border-color:var(--teal);}
+  .gate-btn{background:var(--ink); color:#fff; border-radius:16px; padding:0 20px; font-weight:700; font-size:15px;}
+  .gate-err{color:var(--coral); font-size:13px; margin-top:10px; min-height:18px; font-weight:600;}
+
+  /* ── 설정 ── */
+  #setup{overflow-y:auto; padding-top:40px; padding-bottom:28px;}
+  .setup-title{font-size:32px; line-height:1.15; margin-top:12px;}
+  .setup-sub{color:var(--muted); font-size:14px; margin-top:8px;}
+  .sec-label{font-weight:700; font-size:14px; margin:26px 0 12px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .sc-btn{text-align:left; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px 16px; transition:transform .05s ease;}
+  .sc-btn:active{transform:scale(.98);}
+  .sc-btn .emo{font-size:20px;}
+  .sc-btn .nm{font-weight:700; font-size:15px; margin-top:4px; color:var(--ink);}
+  .sc-btn.on{background:var(--coral); border-color:var(--coral); box-shadow:0 6px 16px rgba(238,106,77,.25);}
+  .sc-btn.on .nm{color:#fff;}
+  .lv-row{display:flex; gap:10px;}
+  .lv-btn{flex:1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 0; font-weight:700; font-size:15px; color:var(--ink);}
+  .lv-btn.on{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .start-btn{width:100%; background:var(--ink); color:#fff; border-radius:18px; padding:16px 0; font-weight:700; font-size:16px; margin-top:34px; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .start-btn:active{transform:scale(.99);}
+  .setup-hint{color:var(--muted); font-size:12px; text-align:center; margin-top:12px;}
+
+  /* ── 채팅 ── */
+  .chat-head{display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--line); flex-shrink:0;}
+  .icon-btn{width:38px; height:38px; border-radius:50%; background:var(--card); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink); flex-shrink:0;}
+  .icon-btn.tts-on{background:var(--teal-soft); color:var(--teal);}
+  .chat-title{flex:1; min-width:0;}
+  .chat-title .t1{font-weight:700; font-size:15px;}
+  .chat-title .t2{color:var(--muted); font-size:12px;}
+  #msgs{flex:1; overflow-y:auto; padding:16px; overscroll-behavior:contain;}
+  .row{margin-bottom:14px; display:flex; flex-direction:column; animation:up .3s ease both;}
+  .row.ai{align-items:flex-start;}
+  .row.me{align-items:flex-end;}
+  .bubble{max-width:88%; padding:12px 16px; border-radius:18px; font-size:15.5px; line-height:1.5;}
+  .row.ai .bubble{background:var(--card); border:1px solid var(--line); border-top-left-radius:6px;}
+  .row.me .bubble{background:var(--coral); color:#fff; border-top-right-radius:6px;}
+  .ko-line{font-size:13.5px; color:var(--muted); margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); line-height:1.5; display:none;}
+  .ko-line.show{display:block;}
+  .chips{display:flex; gap:6px; margin:6px 0 0 4px;}
+  .chip{display:flex; align-items:center; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 10px; font-size:12px; color:var(--muted);}
+  .chip.on{background:var(--teal-soft); color:var(--teal);}
+  .fb-card{max-width:92%; background:var(--amber-soft); border:1px solid var(--amber-line); border-radius:16px; padding:12px 14px; margin-top:6px;}
+  .fb-head{color:var(--amber); font-weight:700; font-size:12.5px; margin-bottom:6px;}
+  .fb-fix{font-size:14.5px; font-weight:600; line-height:1.45;}
+  .fb-why{font-size:13px; color:#8a6d3b; margin-top:5px; line-height:1.5;}
+  .typing{display:flex; gap:4px; margin:4px 0 0 4px;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--teal); animation:blink 1.2s infinite;}
+  .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+
+  /* ── 입력부 ── */
+  .composer{flex-shrink:0; border-top:1px solid var(--line); padding:10px 16px calc(16px + env(safe-area-inset-bottom));}
+  .live{text-align:center; color:var(--coral); font-size:13px; font-weight:600; min-height:18px; margin-bottom:6px;}
+  .err-banner{display:none; background:var(--coral-soft); border:1px solid #F5C9BC; color:#B0492F; border-radius:12px; padding:9px 12px; font-size:13px; line-height:1.45; margin-bottom:8px;}
+  .err-banner.show{display:block;}
+  .in-row{display:flex; align-items:flex-end; gap:8px;}
+  .in-box{flex:1; display:flex; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:10px 14px;}
+  .in-box input{flex:1; border:none; outline:none; background:transparent; font-size:15.5px; color:var(--ink);}
+  .send-btn{display:none; width:30px; height:30px; border-radius:50%; background:var(--teal); color:#fff; align-items:center; justify-content:center; flex-shrink:0;}
+  .send-btn.show{display:flex;}
+  .mic-btn{position:relative; width:54px; height:54px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .08s;}
+  .mic-btn:active{transform:scale(.94);}
+  .mic-btn.listening{background:var(--coral); box-shadow:0 6px 18px rgba(238,106,77,.4);}
+  .mic-btn.disabled{background:#C9C2B6;}
+  .ring{position:absolute; inset:0; border-radius:50%; border:2px solid var(--coral); animation:ring 1.4s ease-out infinite;}
+
+  @keyframes up{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+  @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
+  @keyframes ring{0%{transform:scale(1); opacity:.55;} 100%{transform:scale(2.4); opacity:0;}}
+  @media (prefers-reduced-motion:reduce){ .row,.ring,.dot{animation:none !important;} }
+
+  svg{display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══ 암호 게이트 ═══ -->
+  <div id="gate" class="screen">
+    <div class="gate-box">
+      <div class="brand">
+        <div class="brand-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </div>
+        <span class="brand-label">ENGLISH TALK</span>
+      </div>
+      <h1 class="h-display gate-title">어서 오세요,<br>영쌤의 회화 연습실</h1>
+      <p class="gate-sub">이 앱은 개인용이에요. 접속 암호를 입력해 주세요.<br>(Vercel 환경변수 APP_PASSWORD에 설정한 값)</p>
+      <div class="gate-row">
+        <input id="pwInput" class="gate-input" type="password" placeholder="접속 암호" autocomplete="current-password" />
+        <button id="pwBtn" class="gate-btn">입장</button>
+      </div>
+      <div id="pwErr" class="gate-err"></div>
+    </div>
+  </div>
+
+  <!-- ═══ 설정 화면 ═══ -->
+  <div id="setup" class="screen">
+    <div class="pad">
+      <div class="brand">
+        <div class="brand-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </div>
+        <span class="brand-label">ENGLISH SPEAKING</span>
+      </div>
+      <h1 class="h-display setup-title">오늘은 무슨<br>이야기를 해볼까요?</h1>
+      <p class="setup-sub">상황과 난이도를 고르면 바로 대화를 시작해요.</p>
+
+      <div class="sec-label">상황</div>
+      <div id="scGrid" class="grid2"></div>
+
+      <div class="sec-label">난이도</div>
+      <div id="lvRow" class="lv-row"></div>
+
+      <button id="startBtn" class="start-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        대화 시작하기
+      </button>
+      <p class="setup-hint">마이크를 눌러 말하거나, 직접 타이핑해도 돼요.</p>
+    </div>
+  </div>
+
+  <!-- ═══ 채팅 화면 ═══ -->
+  <div id="chat" class="screen">
+    <div class="chat-head">
+      <button id="backBtn" class="icon-btn" aria-label="처음으로">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </button>
+      <div class="chat-title">
+        <div class="t1" id="chatTitle"></div>
+        <div class="t2" id="chatSub"></div>
+      </div>
+      <button id="ttsBtn" class="icon-btn tts-on" aria-label="음성 켜기/끄기">
+        <svg id="ttsOnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <svg id="ttsOffIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+      </button>
+    </div>
+
+    <div id="msgs"></div>
+
+    <div class="composer">
+      <div id="live" class="live"></div>
+      <div id="errBanner" class="err-banner"></div>
+      <div class="in-row">
+        <div class="in-box">
+          <input id="txtInput" type="text" placeholder="영어로 입력…" autocomplete="off" autocapitalize="sentences" />
+          <button id="sendBtn" class="send-btn" aria-label="보내기">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+          </button>
+        </div>
+        <button id="micBtn" class="mic-btn" aria-label="말하기">
+          <svg id="micIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+          <svg id="stopIcon" width="16" height="16" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="2" style="display:none"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+// ═══════════════ 상수 ═══════════════
+const SCENARIOS = [
+  { id: "free",       label: "자유 대화",     emoji: "💬" },
+  { id: "daily",      label: "일상 스몰토크", emoji: "☕" },
+  { id: "school",     label: "학교 이야기",   emoji: "🏫" },
+  { id: "restaurant", label: "식당에서",      emoji: "🍽️" },
+  { id: "travel",     label: "여행",          emoji: "✈️" },
+  { id: "interview",  label: "영어 면접",     emoji: "👔" },
+];
+const LEVELS = [
+  { id: "beginner",     label: "초급", rate: 0.88 },
+  { id: "intermediate", label: "중급", rate: 0.96 },
+  { id: "advanced",     label: "고급", rate: 1.02 },
+];
+const START_TOKEN = "__START__";
+const LS = { pw: "et_pw", sc: "et_sc", lv: "et_lv", tts: "et_tts" };
+
+const ERR_MSG = {
+  AUTH: "접속 암호가 맞지 않아요. 다시 입력해 주세요.",
+  RATE: "무료 한도(분당 요청 수)에 걸렸어요. 30초쯤 쉬었다가 다시 보내주세요.",
+  NO_KEY: "서버에 GEMINI_API_KEY 환경변수가 없어요. Vercel 설정을 확인해 주세요.",
+  BAD_KEY: "API 키가 올바르지 않아요. Vercel의 GEMINI_API_KEY 값을 확인해 주세요.",
+  GEMINI: "Gemini 응답에 문제가 있었어요. 한 번 더 시도해 주세요.",
+  EMPTY_RESPONSE: "AI가 빈 응답을 보냈어요. 한 번 더 시도해 주세요.",
+  NETWORK: "네트워크 연결에 문제가 있어요. 인터넷 상태를 확인해 주세요.",
+  SERVER: "서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.",
+};
+
+// ═══════════════ 상태 ═══════════════
+const state = {
+  scenario: SCENARIOS[1],
+  level: LEVELS[1],
+  messages: [],      // {role:'user'|'ai', content}
+  thinking: false,
+  listening: false,
+  ttsOn: true,
+  micState: "idle",  // idle | unsupported | blocked
+};
+
+// ═══════════════ 요소 ═══════════════
+const $ = (id) => document.getElementById(id);
+const el = {
+  gate: $("gate"), setup: $("setup"), chat: $("chat"),
+  pwInput: $("pwInput"), pwBtn: $("pwBtn"), pwErr: $("pwErr"),
+  scGrid: $("scGrid"), lvRow: $("lvRow"), startBtn: $("startBtn"),
+  backBtn: $("backBtn"), ttsBtn: $("ttsBtn"), ttsOnIcon: $("ttsOnIcon"), ttsOffIcon: $("ttsOffIcon"),
+  chatTitle: $("chatTitle"), chatSub: $("chatSub"),
+  msgs: $("msgs"), live: $("live"), errBanner: $("errBanner"),
+  txtInput: $("txtInput"), sendBtn: $("sendBtn"),
+  micBtn: $("micBtn"), micIcon: $("micIcon"), stopIcon: $("stopIcon"),
+};
+
+function show(screen) {
+  [el.gate, el.setup, el.chat].forEach((s) => s.classList.remove("on"));
+  screen.classList.add("on");
+}
+
+// ═══════════════ 설정 화면 렌더 ═══════════════
+function renderSetup() {
+  el.scGrid.innerHTML = "";
+  SCENARIOS.forEach((s) => {
+    const b = document.createElement("button");
+    b.className = "sc-btn" + (state.scenario.id === s.id ? " on" : "");
+    const e1 = document.createElement("div"); e1.className = "emo"; e1.textContent = s.emoji;
+    const e2 = document.createElement("div"); e2.className = "nm";  e2.textContent = s.label;
+    b.appendChild(e1); b.appendChild(e2);
+    b.addEventListener("click", () => { state.scenario = s; localStorage.setItem(LS.sc, s.id); renderSetup(); });
+    el.scGrid.appendChild(b);
+  });
+  el.lvRow.innerHTML = "";
+  LEVELS.forEach((l) => {
+    const b = document.createElement("button");
+    b.className = "lv-btn" + (state.level.id === l.id ? " on" : "");
+    b.textContent = l.label;
+    b.addEventListener("click", () => { state.level = l; localStorage.setItem(LS.lv, l.id); renderSetup(); });
+    el.lvRow.appendChild(b);
+  });
+}
+
+// ═══════════════ TTS ═══════════════
+let voices = [];
+function loadVoices() { if (window.speechSynthesis) voices = window.speechSynthesis.getVoices() || []; }
+loadVoices();
+if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = loadVoices;
+
+function pickVoice() {
+  return voices.find((v) => /en[-_]US/i.test(v.lang) && /female|samantha|google us|joana|aria/i.test(v.name))
+      || voices.find((v) => /en[-_]US/i.test(v.lang))
+      || voices.find((v) => /^en/i.test(v.lang))
+      || null;
+}
+
+function speak(text) {
+  if (!state.ttsOn || !window.speechSynthesis || !text) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    const v = pickVoice();
+    if (v) u.voice = v;
+    u.rate = state.level.rate;
+    window.speechSynthesis.speak(u);
+  } catch (e) { /* TTS 실패는 치명적이지 않음 */ }
+}
+
+// iOS 정책 대응: 사용자 터치 순간에 음성 엔진을 깨워둔다
+function primeTTS() {
+  if (!window.speechSynthesis) return;
+  try {
+    const u = new SpeechSynthesisUtterance(" ");
+    u.volume = 0;
+    window.speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+// ═══════════════ STT (Web Speech API) ═══════════════
+let recog = null;
+let finalText = "";
+
+function initSTT() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { state.micState = "unsupported"; updateMicUI(); return; }
+  recog = new SR();
+  recog.lang = "en-US";
+  recog.interimResults = true;
+  recog.continuous = false;
+
+  recog.onresult = (ev) => {
+    let interim = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      const tr = ev.results[i][0].transcript;
+      if (ev.results[i].isFinal) finalText += tr + " ";
+      else interim += tr;
+    }
+    el.live.textContent = (finalText + interim).trim() ? "“" + (finalText + interim).trim() + "”" : "";
+  };
+  recog.onerror = (ev) => {
+    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
+      state.micState = "blocked";
+      showError("마이크 권한이 차단됐어요. 브라우저 주소창의 자물쇠 아이콘에서 마이크를 허용해 주세요.");
+    } else if (ev.error === "no-speech") {
+      el.live.textContent = "";
+    }
+    state.listening = false;
+    updateMicUI();
+  };
+  recog.onend = () => {
+    state.listening = false;
+    updateMicUI();
+    const t = finalText.trim();
+    finalText = "";
+    el.live.textContent = "";
+    if (t) sendMessage(t);
+  };
+}
+
+function toggleMic() {
+  if (state.micState === "unsupported") {
+    showError("이 브라우저는 음성 인식을 지원하지 않아요. 크롬 또는 사파리를 사용해 주세요. (타이핑은 가능해요)");
+    return;
+  }
+  if (!recog) return;
+  if (state.listening) { try { recog.stop(); } catch (e) {} return; }
+  if (state.thinking) return;
+  try {
+    finalText = "";
+    el.live.textContent = "듣고 있어요… 말해보세요";
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    recog.start();
+    state.listening = true;
+    state.micState = "idle";
+    hideError();
+    updateMicUI();
+  } catch (e) {
+    state.listening = false;
+    updateMicUI();
+  }
+}
+
+function updateMicUI() {
+  el.micBtn.classList.toggle("listening", state.listening);
+  el.micBtn.classList.toggle("disabled", state.micState === "unsupported");
+  el.micIcon.style.display = state.listening ? "none" : "block";
+  el.stopIcon.style.display = state.listening ? "block" : "none";
+  const old = el.micBtn.querySelector(".ring");
+  if (state.listening && !old) {
+    const r = document.createElement("span"); r.className = "ring"; el.micBtn.appendChild(r);
+  } else if (!state.listening && old) { old.remove(); }
+  if (!state.listening && !el.live.textContent.startsWith("“")) el.live.textContent = "";
+}
+
+// ═══════════════ 메시지 렌더 ═══════════════
+function addAiMessage(text, ko) {
+  const row = document.createElement("div"); row.className = "row ai";
+  const bubble = document.createElement("div"); bubble.className = "bubble";
+  const p = document.createElement("div"); p.textContent = text;
+  bubble.appendChild(p);
+
+  let koLine = null;
+  if (ko) {
+    koLine = document.createElement("div");
+    koLine.className = "ko-line";
+    koLine.textContent = ko;
+    bubble.appendChild(koLine);
+  }
+  row.appendChild(bubble);
+
+  const chips = document.createElement("div"); chips.className = "chips";
+  const listen = document.createElement("button");
+  listen.className = "chip";
+  listen.textContent = "🔊 듣기";
+  listen.addEventListener("click", () => speak(text));
+  chips.appendChild(listen);
+
+  if (ko) {
+    const tr = document.createElement("button");
+    tr.className = "chip";
+    tr.textContent = "🇰🇷 한국어";
+    tr.addEventListener("click", () => {
+      koLine.classList.toggle("show");
+      tr.classList.toggle("on", koLine.classList.contains("show"));
+    });
+    chips.appendChild(tr);
+  }
+  row.appendChild(chips);
+  el.msgs.appendChild(row);
+  scrollBottom();
+}
+
+function addUserMessage(text) {
+  const row = document.createElement("div"); row.className = "row me";
+  const bubble = document.createElement("div"); bubble.className = "bubble";
+  bubble.textContent = text;
+  row.appendChild(bubble);
+  el.msgs.appendChild(row);
+  scrollBottom();
+  return row;
+}
+
+function attachFeedback(row, fb) {
+  if (!fb || !fb.hasIssue || !fb.corrected) return;
+  const card = document.createElement("div"); card.className = "fb-card";
+  const h = document.createElement("div"); h.className = "fb-head"; h.textContent = "✎ 이렇게 말하면 더 자연스러워요";
+  const fix = document.createElement("div"); fix.className = "fb-fix"; fix.textContent = fb.corrected;
+  card.appendChild(h); card.appendChild(fix);
+  if (fb.explanation) {
+    const why = document.createElement("div"); why.className = "fb-why"; why.textContent = fb.explanation;
+    card.appendChild(why);
+  }
+  row.appendChild(card);
+  scrollBottom();
+}
+
+let typingEl = null;
+function showTyping() {
+  hideTyping();
+  typingEl = document.createElement("div");
+  typingEl.className = "typing";
+  for (let i = 0; i < 3; i++) { const d = document.createElement("span"); d.className = "dot"; typingEl.appendChild(d); }
+  el.msgs.appendChild(typingEl);
+  scrollBottom();
+}
+function hideTyping() { if (typingEl) { typingEl.remove(); typingEl = null; } }
+function scrollBottom() { el.msgs.scrollTop = el.msgs.scrollHeight; }
+
+function showError(msg) { el.errBanner.textContent = msg; el.errBanner.classList.add("show"); }
+function hideError() { el.errBanner.classList.remove("show"); }
+
+// ═══════════════ 서버 호출 ═══════════════
+async function callServer(userText, history) {
+  const body = {
+    password: localStorage.getItem(LS.pw) || "",
+    scenarioId: state.scenario.id,
+    levelId: state.level.id,
+    history: history,
+    userText: userText,
+  };
+  let res, json;
+  try {
+    res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    json = await res.json();
+  } catch (e) {
+    return { ok: false, error: "NETWORK" };
+  }
+  return json || { ok: false, error: "SERVER" };
+}
+
+async function sendMessage(raw) {
+  const text = (raw != null ? raw : el.txtInput.value).trim();
+  if (!text || state.thinking) return;
+  el.txtInput.value = "";
+  el.sendBtn.classList.remove("show");
+  hideError();
+
+  const isStart = text === START_TOKEN;
+  const historySnapshot = state.messages.slice(-12); // push 전에 캡처 (중복 전송 방지)
+  let userRow = null;
+  if (!isStart) {
+    userRow = addUserMessage(text);
+    state.messages.push({ role: "user", content: text });
+  }
+
+  state.thinking = true;
+  showTyping();
+
+  const out = await callServer(text, historySnapshot);
+
+  state.thinking = false;
+  hideTyping();
+
+  if (!out.ok) {
+    if (out.error === "AUTH") {
+      localStorage.removeItem(LS.pw);
+      showError(ERR_MSG.AUTH);
+      setTimeout(() => { show(el.gate); el.pwInput.focus(); }, 900);
+    } else {
+      showError(ERR_MSG[out.error] || ERR_MSG.SERVER);
+    }
+    // 실패한 사용자 발화는 이력에서 제거 (재시도 시 중복 방지)
+    if (!isStart && state.messages.length && state.messages[state.messages.length - 1].content === text) {
+      state.messages.pop();
+    }
+    return;
+  }
+
+  const d = out.data || {};
+  if (userRow) attachFeedback(userRow, d.feedback);
+  addAiMessage(d.reply || "…", d.reply_ko || "");
+  state.messages.push({ role: "ai", content: d.reply || "" });
+  speak(d.reply || "");
+}
+
+// ═══════════════ 화면 전환 ═══════════════
+function startChat() {
+  primeTTS(); // iOS: 터치 시점에 음성 엔진 깨우기
+  state.messages = [];
+  el.msgs.innerHTML = "";
+  hideError();
+  el.chatTitle.textContent = state.scenario.emoji + " " + state.scenario.label;
+  el.chatSub.textContent = state.level.label + " · Joy와 대화 중";
+  show(el.chat);
+  sendMessage(START_TOKEN);
+}
+
+function backToSetup() {
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (state.listening && recog) { try { recog.stop(); } catch (e) {} }
+  show(el.setup);
+}
+
+function toggleTTS() {
+  state.ttsOn = !state.ttsOn;
+  localStorage.setItem(LS.tts, state.ttsOn ? "1" : "0");
+  if (!state.ttsOn && window.speechSynthesis) window.speechSynthesis.cancel();
+  el.ttsBtn.classList.toggle("tts-on", state.ttsOn);
+  el.ttsOnIcon.style.display = state.ttsOn ? "block" : "none";
+  el.ttsOffIcon.style.display = state.ttsOn ? "none" : "block";
+}
+
+// ═══════════════ 게이트 ═══════════════
+function tryEnter() {
+  const pw = el.pwInput.value.trim();
+  if (!pw) { el.pwErr.textContent = "암호를 입력해 주세요."; return; }
+  localStorage.setItem(LS.pw, pw);
+  el.pwErr.textContent = "";
+  el.pwInput.value = "";
+  show(el.setup);
+}
+
+// ═══════════════ 이벤트 바인딩 ═══════════════
+el.pwBtn.addEventListener("click", tryEnter);
+el.pwInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tryEnter(); });
+el.startBtn.addEventListener("click", startChat);
+el.backBtn.addEventListener("click", backToSetup);
+el.ttsBtn.addEventListener("click", toggleTTS);
+el.micBtn.addEventListener("click", toggleMic);
+el.sendBtn.addEventListener("click", () => sendMessage());
+el.txtInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+el.txtInput.addEventListener("input", () => {
+  el.sendBtn.classList.toggle("show", el.txtInput.value.trim().length > 0);
+});
+
+// ═══════════════ 초기화 ═══════════════
+(function init() {
+  const savedSc = localStorage.getItem(LS.sc);
+  const savedLv = localStorage.getItem(LS.lv);
+  const savedTts = localStorage.getItem(LS.tts);
+  if (savedSc) { const f = SCENARIOS.find((s) => s.id === savedSc); if (f) state.scenario = f; }
+  if (savedLv) { const f = LEVELS.find((l) => l.id === savedLv); if (f) state.level = f; }
+  if (savedTts === "0") { state.ttsOn = false; el.ttsBtn.classList.remove("tts-on"); el.ttsOnIcon.style.display = "none"; el.ttsOffIcon.style.display = "block"; }
+
+  renderSetup();
+  initSTT();
+
+  if (localStorage.getItem(LS.pw)) show(el.setup);
+  else show(el.gate);
+})();
+</script>
+</body>
+</html>
