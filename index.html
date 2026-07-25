@@ -26,7 +26,6 @@
   .screen.on{display:flex;}
   button{font-family:inherit; border:none; cursor:pointer; background:none;}
   input{font-family:inherit;}
-
   .h-display{font-family:'Plus Jakarta Sans','Apple SD Gothic Neo',sans-serif; font-weight:800;}
   .pad{padding:0 24px;}
   .brand{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
@@ -34,20 +33,38 @@
   .brand-label{color:var(--muted); font-size:12px; font-weight:700; letter-spacing:.08em;}
 
   /* ── 게이트 ── */
-  #gate{justify-content:center;}
-  .gate-box{padding:0 28px;}
+  #gate{justify-content:center; overflow-y:auto;}
+  .gate-box{padding:32px 28px;}
   .gate-title{font-size:30px; line-height:1.15; margin-top:14px;}
   .gate-sub{color:var(--muted); font-size:14px; margin-top:10px; line-height:1.5;}
-  .gate-row{display:flex; gap:8px; margin-top:24px;}
+  .gate-row{display:flex; gap:8px; margin-top:18px;}
   .gate-input{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; font-size:16px; outline:none; color:var(--ink); min-width:0;}
   .gate-input:focus{border-color:var(--teal);}
   .gate-btn{background:var(--ink); color:#fff; border-radius:16px; padding:0 20px; font-weight:700; font-size:15px;}
   .gate-err{color:var(--coral); font-size:13px; margin-top:10px; min-height:18px; font-weight:600;}
+  .gate-div{display:flex; align-items:center; gap:12px; color:var(--muted); font-size:12px; font-weight:600; margin:22px 0 4px;}
+  .gate-div::before,.gate-div::after{content:""; flex:1; height:1px; background:var(--line);}
+  .gate-note{color:var(--muted); font-size:12.5px; line-height:1.55; margin-top:10px;}
+  .gate-note a{color:var(--teal); font-weight:600;}
 
-  /* ── 설정 ── */
-  #setup{overflow-y:auto; padding-top:40px; padding-bottom:28px;}
-  .setup-title{font-size:32px; line-height:1.15; margin-top:12px;}
+  /* ── 홈(설정) ── */
+  #setup{overflow-y:auto; padding-top:32px; padding-bottom:28px;}
+  .setup-title{font-size:30px; line-height:1.15; margin-top:12px;}
   .setup-sub{color:var(--muted); font-size:14px; margin-top:8px;}
+  .stats-card{background:var(--card); border:1px solid var(--line); border-radius:20px; padding:16px; margin-top:22px;}
+  .stats-row{display:flex; text-align:center;}
+  .stat{flex:1;}
+  .stat .v{font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:22px;}
+  .stat .k{color:var(--muted); font-size:12px; margin-top:2px;}
+  .stat + .stat{border-left:1px solid var(--line);}
+  .goal-wrap{margin-top:14px;}
+  .goal-top{display:flex; justify-content:space-between; font-size:12.5px; color:var(--muted); font-weight:600; margin-bottom:6px;}
+  .goal-bar{height:8px; background:var(--bg); border-radius:99px; overflow:hidden;}
+  .goal-fill{height:100%; background:var(--teal); border-radius:99px; width:0%; transition:width .4s ease;}
+  .goal-fill.done{background:var(--coral);}
+  .badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .badge{display:flex; align-items:center; gap:5px; background:var(--amber-soft); border:1px solid var(--amber-line); border-radius:999px; padding:5px 11px; font-size:12px; font-weight:700; color:#8a6d3b;}
+  .badge.locked{background:var(--bg); border-color:var(--line); color:#C4BCB0; filter:grayscale(1);}
   .sec-label{font-weight:700; font-size:14px; margin:26px 0 12px;}
   .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .sc-btn{text-align:left; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:14px 16px; transition:transform .05s ease;}
@@ -59,14 +76,20 @@
   .lv-row{display:flex; gap:10px;}
   .lv-btn{flex:1; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 0; font-weight:700; font-size:15px; color:var(--ink);}
   .lv-btn.on{background:var(--teal); border-color:var(--teal); color:#fff;}
-  .start-btn{width:100%; background:var(--ink); color:#fff; border-radius:18px; padding:16px 0; font-weight:700; font-size:16px; margin-top:34px; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .start-btn{width:100%; background:var(--ink); color:#fff; border-radius:18px; padding:16px 0; font-weight:700; font-size:16px; margin-top:30px; display:flex; align-items:center; justify-content:center; gap:8px;}
   .start-btn:active{transform:scale(.99);}
   .setup-hint{color:var(--muted); font-size:12px; text-align:center; margin-top:12px; line-height:1.6;}
+  .nav-row{display:flex; gap:10px; margin-top:22px;}
+  .nav-btn{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 0; font-weight:700; font-size:14px; color:var(--ink);}
+  .reset-link{display:block; text-align:center; color:var(--muted); font-size:12px; margin-top:20px; text-decoration:underline;}
 
-  /* ── 채팅 ── */
-  .chat-head{display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--line); flex-shrink:0;}
+  /* ── 공통 서브화면 헤더 ── */
+  .sub-head{display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--line); flex-shrink:0;}
   .icon-btn{width:38px; height:38px; border-radius:50%; background:var(--card); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink); flex-shrink:0;}
   .icon-btn.tts-on{background:var(--teal-soft); color:var(--teal);}
+  .sub-title{flex:1; min-width:0; font-weight:700; font-size:15px;}
+
+  /* ── 채팅 ── */
   .chat-title{flex:1; min-width:0;}
   .chat-title .t1{font-weight:700; font-size:15px;}
   .chat-title .t2{color:var(--muted); font-size:12px;}
@@ -79,13 +102,14 @@
   .row.me .bubble{background:var(--coral); color:#fff; border-top-right-radius:6px;}
   .ko-line{font-size:13.5px; color:var(--muted); margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); line-height:1.5; display:none;}
   .ko-line.show{display:block;}
-  .chips{display:flex; gap:6px; margin:6px 0 0 4px;}
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 0 4px;}
   .chip{display:flex; align-items:center; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 10px; font-size:12px; color:var(--muted);}
   .chip.on{background:var(--teal-soft); color:var(--teal);}
   .fb-card{max-width:92%; background:var(--amber-soft); border:1px solid var(--amber-line); border-radius:16px; padding:12px 14px; margin-top:6px;}
   .fb-head{color:var(--amber); font-weight:700; font-size:12.5px; margin-bottom:6px;}
   .fb-fix{font-size:14.5px; font-weight:600; line-height:1.45;}
   .fb-why{font-size:13px; color:#8a6d3b; margin-top:5px; line-height:1.5;}
+  .fb-chips{display:flex; gap:6px; margin-top:8px;}
   .typing{display:flex; gap:4px; margin:4px 0 0 4px;}
   .dot{width:6px; height:6px; border-radius:50%; background:var(--teal); animation:blink 1.2s infinite;}
   .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
@@ -105,18 +129,50 @@
   .mic-btn.listening{background:var(--coral); box-shadow:0 6px 18px rgba(238,106,77,.4);}
   .ring{position:absolute; inset:0; border-radius:50%; border:2px solid var(--coral); animation:ring 1.4s ease-out infinite;}
 
+  /* ── 표현집 / 기록 ── */
+  .tabbar{display:flex; gap:8px; padding:12px 16px 0;}
+  .tab{flex:1; text-align:center; padding:10px 0; border-radius:12px; background:var(--card); border:1px solid var(--line); font-weight:700; font-size:14px; color:var(--muted);}
+  .tab.on{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .list-wrap{flex:1; overflow-y:auto; padding:14px 16px 24px;}
+  .empty{color:var(--muted); font-size:14px; text-align:center; margin-top:48px; line-height:1.7;}
+  .expr-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:13px 14px; margin-bottom:10px;}
+  .expr-fix{font-weight:700; font-size:15px; line-height:1.45;}
+  .expr-orig{color:var(--muted); font-size:13px; margin-top:4px; text-decoration:line-through;}
+  .expr-why{color:#8a6d3b; font-size:12.5px; margin-top:5px; line-height:1.5;}
+  .hist-card{width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:10px;}
+  .hist-t{font-weight:700; font-size:15px; color:var(--ink);}
+  .hist-s{color:var(--muted); font-size:12.5px; margin-top:3px;}
+
+  /* ── 퀴즈 ── */
+  .quiz-wrap{flex:1; overflow-y:auto; padding:20px 20px 28px; display:flex; flex-direction:column;}
+  .quiz-card{background:var(--card); border:1px solid var(--line); border-radius:22px; padding:24px 20px;}
+  .quiz-label{color:var(--muted); font-size:12.5px; font-weight:700; letter-spacing:.04em;}
+  .quiz-q{font-size:17px; font-weight:600; line-height:1.5; margin-top:10px;}
+  .quiz-ans{display:none; margin-top:16px; padding-top:16px; border-top:1px dashed var(--line);}
+  .quiz-ans.show{display:block;}
+  .quiz-fix{font-size:17px; font-weight:700; color:var(--teal); line-height:1.5;}
+  .quiz-why{font-size:13.5px; color:#8a6d3b; margin-top:8px; line-height:1.55;}
+  .quiz-btns{display:flex; gap:10px; margin-top:18px;}
+  .q-btn{flex:1; border-radius:14px; padding:14px 0; font-weight:700; font-size:15px;}
+  .q-btn.primary{background:var(--ink); color:#fff;}
+  .q-btn.ghost{background:var(--card); border:1px solid var(--line); color:var(--ink);}
+
+  /* ── 토스트 ── */
+  .toast{position:absolute; top:14px; left:50%; transform:translateX(-50%) translateY(-8px); background:var(--ink); color:#fff; border-radius:999px; padding:10px 18px; font-size:13.5px; font-weight:700; opacity:0; pointer-events:none; transition:all .3s ease; z-index:50; white-space:nowrap; max-width:92%; overflow:hidden; text-overflow:ellipsis;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
   @keyframes up{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
   @keyframes blink{0%,80%,100%{opacity:.25;} 40%{opacity:1;}}
   @keyframes ring{0%{transform:scale(1); opacity:.55;} 100%{transform:scale(2.4); opacity:0;}}
   @media (prefers-reduced-motion:reduce){ .row,.ring,.dot{animation:none !important;} }
-
   svg{display:block;}
 </style>
 </head>
 <body>
 <div class="app">
+  <div id="toast" class="toast"></div>
 
-  <!-- ═══ 암호 게이트 ═══ -->
+  <!-- ═══ 게이트 ═══ -->
   <div id="gate" class="screen">
     <div class="gate-box">
       <div class="brand">
@@ -125,17 +181,26 @@
         </div>
         <span class="brand-label">ENGLISH TALK</span>
       </div>
-      <h1 class="h-display gate-title">어서 오세요,<br>영쌤의 회화 연습실</h1>
-      <p class="gate-sub">이 앱은 개인용이에요. 접속 암호를 입력해 주세요.<br>(Vercel 환경변수 APP_PASSWORD에 설정한 값)</p>
+      <h1 class="h-display gate-title">영어 회화 연습실에<br>어서 오세요</h1>
+      <p class="gate-sub">두 가지 방법 중 하나로 시작할 수 있어요.</p>
+
+      <div class="gate-div">접속 암호로 입장</div>
       <div class="gate-row">
         <input id="pwInput" class="gate-input" type="password" placeholder="접속 암호" autocomplete="current-password" />
         <button id="pwBtn" class="gate-btn">입장</button>
       </div>
-      <div id="pwErr" class="gate-err"></div>
+
+      <div class="gate-div">또는, 내 Gemini API 키로 입장</div>
+      <div class="gate-row">
+        <input id="keyInput" class="gate-input" type="password" placeholder="AIza… 로 시작하는 키" autocomplete="off" />
+        <button id="keyBtn" class="gate-btn">입장</button>
+      </div>
+      <p class="gate-note">키는 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에서 무료로 발급받을 수 있어요.<br>키는 이 기기(브라우저)에만 저장되며, 사용량은 본인 키 기준으로 계산됩니다.</p>
+      <div id="gateErr" class="gate-err"></div>
     </div>
   </div>
 
-  <!-- ═══ 설정 화면 ═══ -->
+  <!-- ═══ 홈(설정) ═══ -->
   <div id="setup" class="screen">
     <div class="pad">
       <div class="brand">
@@ -145,7 +210,20 @@
         <span class="brand-label">ENGLISH SPEAKING</span>
       </div>
       <h1 class="h-display setup-title">오늘은 무슨<br>이야기를 해볼까요?</h1>
-      <p class="setup-sub">상황과 난이도를 고르면 바로 대화를 시작해요.</p>
+
+      <!-- 기록 카드 -->
+      <div class="stats-card">
+        <div class="stats-row">
+          <div class="stat"><div class="v" id="stStreak">🔥 0일</div><div class="k">연속 출석</div></div>
+          <div class="stat"><div class="v" id="stToday">0</div><div class="k">오늘 말한 문장</div></div>
+          <div class="stat"><div class="v" id="stTotal">0</div><div class="k">누적 문장</div></div>
+        </div>
+        <div class="goal-wrap">
+          <div class="goal-top"><span>오늘 목표</span><span id="goalText">0 / 10 문장</span></div>
+          <div class="goal-bar"><div id="goalFill" class="goal-fill"></div></div>
+        </div>
+        <div id="badgeRow" class="badge-row"></div>
+      </div>
 
       <div class="sec-label">상황</div>
       <div id="scGrid" class="grid2"></div>
@@ -157,13 +235,19 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
         대화 시작하기
       </button>
-      <p class="setup-hint">🎤 버튼을 누르고 말한 뒤, 다시 누르면 전송돼요.<br>직접 타이핑해도 됩니다.</p>
+      <p class="setup-hint">🎤 버튼을 누르고 말한 뒤, 다시 누르면 전송돼요.</p>
+
+      <div class="nav-row">
+        <button id="exprNavBtn" class="nav-btn">📒 내 표현집</button>
+        <button id="histNavBtn" class="nav-btn">🕘 대화 기록</button>
+      </div>
+      <a id="resetLink" class="reset-link">접속 정보 변경</a>
     </div>
   </div>
 
-  <!-- ═══ 채팅 화면 ═══ -->
+  <!-- ═══ 채팅 ═══ -->
   <div id="chat" class="screen">
-    <div class="chat-head">
+    <div class="sub-head">
       <button id="backBtn" class="icon-btn" aria-label="처음으로">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
       </button>
@@ -197,6 +281,57 @@
     </div>
   </div>
 
+  <!-- ═══ 내 표현집 ═══ -->
+  <div id="expr" class="screen">
+    <div class="sub-head">
+      <button id="exprBackBtn" class="icon-btn" aria-label="뒤로">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </button>
+      <div class="sub-title">📒 내 표현집</div>
+    </div>
+    <div class="tabbar">
+      <button id="tabList" class="tab on">목록</button>
+      <button id="tabQuiz" class="tab">복습 퀴즈</button>
+    </div>
+    <div id="exprList" class="list-wrap"></div>
+    <div id="quizWrap" class="quiz-wrap" style="display:none">
+      <div class="quiz-card">
+        <div class="quiz-label" id="quizLabel">이 문장을 자연스럽게 고쳐 말해보세요</div>
+        <div class="quiz-q" id="quizQ"></div>
+        <div class="quiz-ans" id="quizAns">
+          <div class="quiz-fix" id="quizFix"></div>
+          <div class="quiz-why" id="quizWhy"></div>
+        </div>
+      </div>
+      <div class="quiz-btns">
+        <button id="quizListenBtn" class="q-btn ghost">🔊 듣기</button>
+        <button id="quizMainBtn" class="q-btn primary">정답 보기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 대화 기록 목록 ═══ -->
+  <div id="hist" class="screen">
+    <div class="sub-head">
+      <button id="histBackBtn" class="icon-btn" aria-label="뒤로">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </button>
+      <div class="sub-title">🕘 대화 기록</div>
+    </div>
+    <div id="histList" class="list-wrap"></div>
+  </div>
+
+  <!-- ═══ 대화 기록 보기 ═══ -->
+  <div id="histview" class="screen">
+    <div class="sub-head">
+      <button id="hvBackBtn" class="icon-btn" aria-label="뒤로">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </button>
+      <div class="sub-title" id="hvTitle">대화 보기</div>
+    </div>
+    <div id="hvMsgs" class="list-wrap"></div>
+  </div>
+
 </div>
 
 <script>
@@ -217,14 +352,27 @@ const LEVELS = [
   { id: "advanced",     label: "고급", rate: 1.02 },
 ];
 const START_TOKEN = "__START__";
-const MAX_REC_MS = 30000; // 녹음 최대 30초 (자동 전송)
-const LS = { pw: "et_pw", sc: "et_sc", lv: "et_lv", tts: "et_tts" };
+const MAX_REC_MS = 30000;
+const DAILY_GOAL = 10;
+const HIST_MAX = 20;
+const LS = { pw: "et_pw", key: "et_userkey", sc: "et_sc", lv: "et_lv", tts: "et_tts", stats: "et_stats", expr: "et_expr", hist: "et_hist" };
+
+const BADGES = [
+  { id: "first", emoji: "🌱", name: "첫 대화",     test: (st) => st.total >= 1 },
+  { id: "s3",    emoji: "🥉", name: "3일 연속",    test: (st) => st.best >= 3 },
+  { id: "s7",    emoji: "🥈", name: "7일 연속",    test: (st) => st.best >= 7 },
+  { id: "s14",   emoji: "🥇", name: "14일 연속",   test: (st) => st.best >= 14 },
+  { id: "s30",   emoji: "🏆", name: "30일 연속",   test: (st) => st.best >= 30 },
+  { id: "t50",   emoji: "💬", name: "문장 50개",   test: (st) => st.total >= 50 },
+  { id: "t100",  emoji: "🎯", name: "문장 100개",  test: (st) => st.total >= 100 },
+  { id: "t300",  emoji: "🚀", name: "문장 300개",  test: (st) => st.total >= 300 },
+];
 
 const ERR_MSG = {
-  AUTH: "접속 암호가 맞지 않아요. 다시 입력해 주세요.",
+  AUTH: "접속 정보가 맞지 않아요. 다시 입력해 주세요.",
   RATE: "무료 한도(분당 요청 수)에 걸렸어요. 30초쯤 쉬었다가 다시 보내주세요.",
   NO_KEY: "서버에 GEMINI_API_KEY 환경변수가 없어요. Vercel 설정을 확인해 주세요.",
-  BAD_KEY: "API 키가 올바르지 않아요. Vercel의 GEMINI_API_KEY 값을 확인해 주세요.",
+  BAD_KEY: "API 키가 올바르지 않아요. '접속 정보 변경'에서 키를 다시 입력해 주세요.",
   GEMINI: "Gemini 응답에 문제가 있었어요. 한 번 더 시도해 주세요.",
   EMPTY_RESPONSE: "AI가 빈 응답을 보냈어요. 한 번 더 시도해 주세요.",
   NETWORK: "네트워크 연결에 문제가 있어요. 인터넷 상태를 확인해 주세요.",
@@ -235,31 +383,308 @@ const ERR_MSG = {
 const state = {
   scenario: SCENARIOS[1],
   level: LEVELS[1],
-  messages: [],      // {role:'user'|'ai', content}
+  messages: [],      // {role:'user'|'ai', content, ko?, fb?}
   thinking: false,
-  listening: false,  // 녹음 중
+  listening: false,
   ttsOn: true,
+  quizIdx: -1,
+  quizRevealed: false,
 };
+
+// ═══════════════ 저장소 유틸 ═══════════════
+function lsGet(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) { return fallback; }
+}
+function lsSet(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+}
+
+function fmtDate(d) {
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function todayStr() { return fmtDate(new Date()); }
+function yesterdayStr() { const d = new Date(); d.setDate(d.getDate() - 1); return fmtDate(d); }
 
 // ═══════════════ 요소 ═══════════════
 const $ = (id) => document.getElementById(id);
 const el = {
-  gate: $("gate"), setup: $("setup"), chat: $("chat"),
-  pwInput: $("pwInput"), pwBtn: $("pwBtn"), pwErr: $("pwErr"),
+  toast: $("toast"),
+  gate: $("gate"), setup: $("setup"), chat: $("chat"), expr: $("expr"), hist: $("hist"), histview: $("histview"),
+  pwInput: $("pwInput"), pwBtn: $("pwBtn"), keyInput: $("keyInput"), keyBtn: $("keyBtn"), gateErr: $("gateErr"),
+  stStreak: $("stStreak"), stToday: $("stToday"), stTotal: $("stTotal"),
+  goalText: $("goalText"), goalFill: $("goalFill"), badgeRow: $("badgeRow"),
   scGrid: $("scGrid"), lvRow: $("lvRow"), startBtn: $("startBtn"),
+  exprNavBtn: $("exprNavBtn"), histNavBtn: $("histNavBtn"), resetLink: $("resetLink"),
   backBtn: $("backBtn"), ttsBtn: $("ttsBtn"), ttsOnIcon: $("ttsOnIcon"), ttsOffIcon: $("ttsOffIcon"),
   chatTitle: $("chatTitle"), chatSub: $("chatSub"),
   msgs: $("msgs"), live: $("live"), errBanner: $("errBanner"),
   txtInput: $("txtInput"), sendBtn: $("sendBtn"),
   micBtn: $("micBtn"), micIcon: $("micIcon"), stopIcon: $("stopIcon"),
+  exprBackBtn: $("exprBackBtn"), tabList: $("tabList"), tabQuiz: $("tabQuiz"),
+  exprList: $("exprList"), quizWrap: $("quizWrap"),
+  quizLabel: $("quizLabel"), quizQ: $("quizQ"), quizAns: $("quizAns"), quizFix: $("quizFix"), quizWhy: $("quizWhy"),
+  quizListenBtn: $("quizListenBtn"), quizMainBtn: $("quizMainBtn"),
+  histBackBtn: $("histBackBtn"), histList: $("histList"),
+  hvBackBtn: $("hvBackBtn"), hvTitle: $("hvTitle"), hvMsgs: $("hvMsgs"),
 };
 
 function show(screen) {
-  [el.gate, el.setup, el.chat].forEach((s) => s.classList.remove("on"));
+  [el.gate, el.setup, el.chat, el.expr, el.hist, el.histview].forEach((s) => s.classList.remove("on"));
   screen.classList.add("on");
 }
 
-// ═══════════════ 설정 화면 렌더 ═══════════════
+// ═══════════════ 토스트 ═══════════════
+let toastTimer = null;
+function toast(msg) {
+  el.toast.textContent = msg;
+  el.toast.classList.add("show");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.toast.classList.remove("show"), 2600);
+}
+
+// ═══════════════ 출석/목표/뱃지 (2단계) ═══════════════
+function loadStats() {
+  return lsGet(LS.stats, { day: "", streak: 0, best: 0, today: 0, total: 0, earned: [] });
+}
+
+function effectiveStreak(st) {
+  if (st.day === todayStr() || st.day === yesterdayStr()) return st.streak;
+  return 0;
+}
+
+function bumpStats() {
+  const st = loadStats();
+  const t = todayStr();
+  if (st.day !== t) {
+    st.streak = st.day === yesterdayStr() ? st.streak + 1 : 1;
+    st.day = t;
+    st.today = 0;
+    if (st.streak > 1) toast("🔥 " + st.streak + "일 연속 출석!");
+  }
+  st.today += 1;
+  st.total += 1;
+  st.best = Math.max(st.best || 0, st.streak);
+
+  if (st.today === DAILY_GOAL) toast("🎉 오늘 목표 달성! " + DAILY_GOAL + "문장 완료!");
+
+  if (!Array.isArray(st.earned)) st.earned = [];
+  BADGES.forEach((b) => {
+    if (st.earned.indexOf(b.id) < 0 && b.test(st)) {
+      st.earned.push(b.id);
+      toast(b.emoji + " 뱃지 획득: " + b.name + "!");
+    }
+  });
+
+  lsSet(LS.stats, st);
+  renderStats();
+  updateChatSub();
+}
+
+function renderStats() {
+  const st = loadStats();
+  const streak = effectiveStreak(st);
+  const today = st.day === todayStr() ? st.today : 0;
+  el.stStreak.textContent = "🔥 " + streak + "일";
+  el.stToday.textContent = String(today);
+  el.stTotal.textContent = String(st.total || 0);
+  const pct = Math.min(100, Math.round((today / DAILY_GOAL) * 100));
+  el.goalText.textContent = Math.min(today, DAILY_GOAL) + " / " + DAILY_GOAL + " 문장" + (today >= DAILY_GOAL ? " ✅" : "");
+  el.goalFill.style.width = pct + "%";
+  el.goalFill.classList.toggle("done", today >= DAILY_GOAL);
+
+  el.badgeRow.innerHTML = "";
+  const earned = Array.isArray(st.earned) ? st.earned : [];
+  BADGES.forEach((b) => {
+    const has = earned.indexOf(b.id) >= 0;
+    const sp = document.createElement("span");
+    sp.className = "badge" + (has ? "" : " locked");
+    sp.textContent = b.emoji + " " + b.name;
+    el.badgeRow.appendChild(sp);
+  });
+}
+
+function updateChatSub() {
+  const st = loadStats();
+  const today = st.day === todayStr() ? st.today : 0;
+  const streak = effectiveStreak(st);
+  el.chatSub.textContent =
+    state.level.label + " · 오늘 " + Math.min(today, 99) + "/" + DAILY_GOAL + (streak > 0 ? " · 🔥" + streak : "");
+}
+
+// ═══════════════ 표현집 (3단계) ═══════════════
+function loadExpr() { return lsGet(LS.expr, []); }
+
+function saveExpression(orig, fix, why) {
+  const list = loadExpr();
+  if (list.some((x) => x.fix === fix)) { toast("이미 저장된 표현이에요"); return; }
+  list.unshift({ id: Date.now(), orig: orig || "", fix: fix, why: why || "", date: todayStr() });
+  lsSet(LS.expr, list);
+  toast("📒 표현집에 저장했어요");
+  el.exprNavBtn.textContent = "📒 내 표현집 (" + list.length + ")";
+}
+
+function deleteExpression(id) {
+  const list = loadExpr().filter((x) => x.id !== id);
+  lsSet(LS.expr, list);
+  renderExprList();
+  el.exprNavBtn.textContent = "📒 내 표현집" + (list.length ? " (" + list.length + ")" : "");
+}
+
+function renderExprList() {
+  const list = loadExpr();
+  el.exprList.innerHTML = "";
+  if (!list.length) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = "아직 저장한 표현이 없어요.\n대화 중 교정 카드나 Joy의 말풍선에서 ➕ 저장을 눌러보세요.";
+    el.exprList.appendChild(d);
+    return;
+  }
+  list.forEach((x) => {
+    const card = document.createElement("div"); card.className = "expr-card";
+    const fix = document.createElement("div"); fix.className = "expr-fix"; fix.textContent = x.fix;
+    card.appendChild(fix);
+    if (x.orig) { const o = document.createElement("div"); o.className = "expr-orig"; o.textContent = x.orig; card.appendChild(o); }
+    if (x.why)  { const w = document.createElement("div"); w.className = "expr-why";  w.textContent = x.why;  card.appendChild(w); }
+    const chips = document.createElement("div"); chips.className = "chips";
+    const l = document.createElement("button"); l.className = "chip"; l.textContent = "🔊 듣기";
+    l.addEventListener("click", () => speak(x.fix));
+    const del = document.createElement("button"); del.className = "chip"; del.textContent = "🗑️ 삭제";
+    del.addEventListener("click", () => deleteExpression(x.id));
+    chips.appendChild(l); chips.appendChild(del);
+    card.appendChild(chips);
+    el.exprList.appendChild(card);
+  });
+}
+
+// ── 복습 퀴즈 (교정 이력이 있는 표현 대상) ──
+function quizPool() { return loadExpr().filter((x) => x.orig); }
+
+function nextQuiz() {
+  const pool = quizPool();
+  if (!pool.length) {
+    el.quizLabel.textContent = "복습할 표현이 아직 없어요";
+    el.quizQ.textContent = "교정 카드에서 ➕ 저장을 누르면 여기서 복습할 수 있어요.";
+    el.quizAns.classList.remove("show");
+    el.quizMainBtn.textContent = "정답 보기";
+    state.quizIdx = -1;
+    return;
+  }
+  let idx = Math.floor(Math.random() * pool.length);
+  if (pool.length > 1 && idx === state.quizIdx) idx = (idx + 1) % pool.length;
+  state.quizIdx = idx;
+  state.quizRevealed = false;
+  const item = pool[idx];
+  el.quizLabel.textContent = "이 문장을 자연스럽게 고쳐 말해보세요";
+  el.quizQ.textContent = "“" + item.orig + "”";
+  el.quizFix.textContent = item.fix;
+  el.quizWhy.textContent = item.why || "";
+  el.quizAns.classList.remove("show");
+  el.quizMainBtn.textContent = "정답 보기";
+}
+
+function quizMain() {
+  const pool = quizPool();
+  if (state.quizIdx < 0 || !pool.length) { nextQuiz(); return; }
+  if (!state.quizRevealed) {
+    state.quizRevealed = true;
+    el.quizAns.classList.add("show");
+    el.quizMainBtn.textContent = "다음 문제";
+    speak(pool[state.quizIdx].fix);
+  } else {
+    nextQuiz();
+  }
+}
+
+function quizListen() {
+  const pool = quizPool();
+  if (state.quizIdx >= 0 && pool[state.quizIdx]) {
+    speak(state.quizRevealed ? pool[state.quizIdx].fix : pool[state.quizIdx].orig);
+  }
+}
+
+function switchExprTab(toQuiz) {
+  el.tabList.classList.toggle("on", !toQuiz);
+  el.tabQuiz.classList.toggle("on", toQuiz);
+  el.exprList.style.display = toQuiz ? "none" : "block";
+  el.quizWrap.style.display = toQuiz ? "flex" : "none";
+  if (toQuiz) nextQuiz();
+}
+
+// ═══════════════ 대화 기록 (3단계) ═══════════════
+function loadHist() { return lsGet(LS.hist, []); }
+
+function saveSession() {
+  const userTurns = state.messages.filter((m) => m.role === "user").length;
+  if (userTurns < 1) return;
+  const list = loadHist();
+  list.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    sc: state.scenario.id,
+    lv: state.level.id,
+    msgs: state.messages.map((m) => ({ role: m.role, content: m.content, ko: m.ko || "", fb: m.fb || null })),
+  });
+  while (list.length > HIST_MAX) list.pop();
+  lsSet(LS.hist, list);
+}
+
+function renderHistList() {
+  const list = loadHist();
+  el.histList.innerHTML = "";
+  if (!list.length) {
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = "저장된 대화가 아직 없어요.\n대화를 마치고 ← 로 나오면 자동 저장돼요.";
+    el.histList.appendChild(d);
+    return;
+  }
+  list.forEach((h) => {
+    const sc = SCENARIOS.find((s) => s.id === h.sc) || SCENARIOS[0];
+    const lv = LEVELS.find((l) => l.id === h.lv) || LEVELS[1];
+    const n = h.msgs.filter((m) => m.role === "user").length;
+    const b = document.createElement("button");
+    b.className = "hist-card";
+    const t = document.createElement("div"); t.className = "hist-t"; t.textContent = sc.emoji + " " + sc.label;
+    const s = document.createElement("div"); s.className = "hist-s"; s.textContent = h.date + " · " + lv.label + " · 내 문장 " + n + "개";
+    b.appendChild(t); b.appendChild(s);
+    b.addEventListener("click", () => openHistView(h));
+    el.histList.appendChild(b);
+  });
+}
+
+function openHistView(h) {
+  const sc = SCENARIOS.find((s) => s.id === h.sc) || SCENARIOS[0];
+  el.hvTitle.textContent = sc.emoji + " " + sc.label + " · " + h.date;
+  el.hvMsgs.innerHTML = "";
+  h.msgs.forEach((m) => {
+    const row = document.createElement("div"); row.className = "row " + (m.role === "ai" ? "ai" : "me");
+    const bubble = document.createElement("div"); bubble.className = "bubble";
+    bubble.textContent = m.content;
+    row.appendChild(bubble);
+    if (m.role === "ai") {
+      const chips = document.createElement("div"); chips.className = "chips";
+      const l = document.createElement("button"); l.className = "chip"; l.textContent = "🔊 듣기";
+      l.addEventListener("click", () => speak(m.content));
+      chips.appendChild(l);
+      row.appendChild(chips);
+    } else if (m.fb && m.fb.hasIssue && m.fb.corrected) {
+      const card = document.createElement("div"); card.className = "fb-card";
+      const hd = document.createElement("div"); hd.className = "fb-head"; hd.textContent = "✎ 자연스러운 표현";
+      const fx = document.createElement("div"); fx.className = "fb-fix"; fx.textContent = m.fb.corrected;
+      card.appendChild(hd); card.appendChild(fx);
+      if (m.fb.explanation) { const wy = document.createElement("div"); wy.className = "fb-why"; wy.textContent = m.fb.explanation; card.appendChild(wy); }
+      row.appendChild(card);
+    }
+    el.hvMsgs.appendChild(row);
+  });
+  show(el.histview);
+}
+
+// ═══════════════ 홈 렌더 ═══════════════
 function renderSetup() {
   el.scGrid.innerHTML = "";
   SCENARIOS.forEach((s) => {
@@ -279,9 +704,12 @@ function renderSetup() {
     b.addEventListener("click", () => { state.level = l; localStorage.setItem(LS.lv, l.id); renderSetup(); });
     el.lvRow.appendChild(b);
   });
+  const exprCount = loadExpr().length;
+  el.exprNavBtn.textContent = "📒 내 표현집" + (exprCount ? " (" + exprCount + ")" : "");
+  renderStats();
 }
 
-// ═══════════════ TTS (음성 출력) ═══════════════
+// ═══════════════ TTS ═══════════════
 let voices = [];
 function loadVoices() { if (window.speechSynthesis) voices = window.speechSynthesis.getVoices() || []; }
 loadVoices();
@@ -304,10 +732,9 @@ function speak(text) {
     if (v) u.voice = v;
     u.rate = state.level.rate;
     window.speechSynthesis.speak(u);
-  } catch (e) { /* TTS 실패는 치명적이지 않음 */ }
+  } catch (e) {}
 }
 
-// iOS 정책 대응: 사용자 터치 순간에 음성 엔진을 깨워둔다
 function primeTTS() {
   if (!window.speechSynthesis) return;
   try {
@@ -317,7 +744,7 @@ function primeTTS() {
   } catch (e) {}
 }
 
-// ═══════════════ 음성 녹음 (MediaRecorder → Gemini 오디오) ═══════════════
+// ═══════════════ 음성 녹음 ═══════════════
 let mediaRecorder = null;
 let recChunks = [];
 let recStream = null;
@@ -325,8 +752,8 @@ let recTimer = null;
 
 function pickMime() {
   if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return "";
-  if (MediaRecorder.isTypeSupported("audio/webm")) return "audio/webm";   // 크롬/안드로이드
-  if (MediaRecorder.isTypeSupported("audio/mp4")) return "audio/mp4";     // iOS 사파리
+  if (MediaRecorder.isTypeSupported("audio/webm")) return "audio/webm";
+  if (MediaRecorder.isTypeSupported("audio/mp4")) return "audio/mp4";
   return "";
 }
 
@@ -433,21 +860,25 @@ function addAiMessage(text, ko) {
 
   const chips = document.createElement("div"); chips.className = "chips";
   const listen = document.createElement("button");
-  listen.className = "chip";
-  listen.textContent = "🔊 듣기";
+  listen.className = "chip"; listen.textContent = "🔊 듣기";
   listen.addEventListener("click", () => speak(text));
   chips.appendChild(listen);
 
   if (ko) {
     const tr = document.createElement("button");
-    tr.className = "chip";
-    tr.textContent = "🇰🇷 한국어";
+    tr.className = "chip"; tr.textContent = "🇰🇷 한국어";
     tr.addEventListener("click", () => {
       koLine.classList.toggle("show");
       tr.classList.toggle("on", koLine.classList.contains("show"));
     });
     chips.appendChild(tr);
   }
+
+  const save = document.createElement("button");
+  save.className = "chip"; save.textContent = "➕ 저장";
+  save.addEventListener("click", () => saveExpression("", text, ko ? "Joy: " + ko : "Joy의 표현"));
+  chips.appendChild(save);
+
   row.appendChild(chips);
   el.msgs.appendChild(row);
   scrollBottom();
@@ -463,7 +894,7 @@ function addUserMessage(text) {
   return row;
 }
 
-function attachFeedback(row, fb) {
+function attachFeedback(row, fb, origText) {
   if (!fb || !fb.hasIssue || !fb.corrected) return;
   const card = document.createElement("div"); card.className = "fb-card";
   const h = document.createElement("div"); h.className = "fb-head"; h.textContent = "✎ 이렇게 말하면 더 자연스러워요";
@@ -473,6 +904,13 @@ function attachFeedback(row, fb) {
     const why = document.createElement("div"); why.className = "fb-why"; why.textContent = fb.explanation;
     card.appendChild(why);
   }
+  const chips = document.createElement("div"); chips.className = "fb-chips";
+  const l = document.createElement("button"); l.className = "chip"; l.textContent = "🔊 듣기";
+  l.addEventListener("click", () => speak(fb.corrected));
+  const s = document.createElement("button"); s.className = "chip"; s.textContent = "➕ 저장";
+  s.addEventListener("click", () => saveExpression(origText || "", fb.corrected, fb.explanation || ""));
+  chips.appendChild(l); chips.appendChild(s);
+  card.appendChild(chips);
   row.appendChild(card);
   scrollBottom();
 }
@@ -496,9 +934,10 @@ function hideError() { el.errBanner.classList.remove("show"); }
 async function callServer(opts) {
   const body = {
     password: localStorage.getItem(LS.pw) || "",
+    userApiKey: localStorage.getItem(LS.key) || "",
     scenarioId: state.scenario.id,
     levelId: state.level.id,
-    history: opts.history || [],
+    history: (opts.history || []).map((m) => ({ role: m.role, content: m.content })),
     userText: opts.userText || "",
     audio: opts.audio || null,
   };
@@ -520,7 +959,7 @@ function handleFail(out) {
   if (out.error === "AUTH") {
     localStorage.removeItem(LS.pw);
     showError(ERR_MSG.AUTH);
-    setTimeout(() => { show(el.gate); el.pwInput.focus(); }, 900);
+    setTimeout(() => { show(el.gate); }, 900);
     return;
   }
   let msg = ERR_MSG[out.error] || ERR_MSG.SERVER;
@@ -528,7 +967,7 @@ function handleFail(out) {
   showError(msg);
 }
 
-// 텍스트 전송 (타이핑 / 시작 토큰)
+// 텍스트 전송
 async function sendMessage(raw) {
   const text = (raw != null ? raw : el.txtInput.value).trim();
   if (!text || state.thinking || state.listening) return;
@@ -537,11 +976,13 @@ async function sendMessage(raw) {
   hideError();
 
   const isStart = text === START_TOKEN;
-  const historySnapshot = state.messages.slice(-12); // push 전에 캡처 (중복 전송 방지)
+  const historySnapshot = state.messages.slice(-12);
   let userRow = null;
+  let userMsg = null;
   if (!isStart) {
     userRow = addUserMessage(text);
-    state.messages.push({ role: "user", content: text });
+    userMsg = { role: "user", content: text };
+    state.messages.push(userMsg);
   }
 
   state.thinking = true;
@@ -552,20 +993,25 @@ async function sendMessage(raw) {
 
   if (!out.ok) {
     handleFail(out);
-    if (!isStart && state.messages.length && state.messages[state.messages.length - 1].content === text) {
-      state.messages.pop();
+    if (userMsg) {
+      const i = state.messages.indexOf(userMsg);
+      if (i >= 0) state.messages.splice(i, 1);
     }
     return;
   }
 
   const d = out.data || {};
-  if (userRow) attachFeedback(userRow, d.feedback);
+  if (userRow) {
+    if (userMsg) userMsg.fb = d.feedback || null;
+    attachFeedback(userRow, d.feedback, text);
+    bumpStats();
+  }
   addAiMessage(d.reply || "…", d.reply_ko || "");
-  state.messages.push({ role: "ai", content: d.reply || "" });
+  state.messages.push({ role: "ai", content: d.reply || "", ko: d.reply_ko || "" });
   speak(d.reply || "");
 }
 
-// 음성 전송 (녹음 → Gemini가 받아쓰기 + 응답)
+// 음성 전송
 async function sendVoice(base64, mimeType) {
   if (state.thinking) return;
   hideError();
@@ -589,21 +1035,23 @@ async function sendVoice(base64, mimeType) {
   }
 
   const userRow = addUserMessage(transcript);
-  state.messages.push({ role: "user", content: transcript });
-  attachFeedback(userRow, d.feedback);
+  const userMsg = { role: "user", content: transcript, fb: d.feedback || null };
+  state.messages.push(userMsg);
+  attachFeedback(userRow, d.feedback, transcript);
+  bumpStats();
   addAiMessage(d.reply || "…", d.reply_ko || "");
-  state.messages.push({ role: "ai", content: d.reply || "" });
+  state.messages.push({ role: "ai", content: d.reply || "", ko: d.reply_ko || "" });
   speak(d.reply || "");
 }
 
 // ═══════════════ 화면 전환 ═══════════════
 function startChat() {
-  primeTTS(); // iOS: 터치 시점에 음성 엔진 깨우기
+  primeTTS();
   state.messages = [];
   el.msgs.innerHTML = "";
   hideError();
   el.chatTitle.textContent = state.scenario.emoji + " " + state.scenario.label;
-  el.chatSub.textContent = state.level.label + " · Joy와 대화 중";
+  updateChatSub();
   show(el.chat);
   sendMessage(START_TOKEN);
 }
@@ -611,6 +1059,9 @@ function startChat() {
 function backToSetup() {
   if (window.speechSynthesis) window.speechSynthesis.cancel();
   if (state.listening) stopRecording();
+  saveSession();
+  state.messages = [];
+  renderSetup();
   show(el.setup);
 }
 
@@ -624,18 +1075,39 @@ function toggleTTS() {
 }
 
 // ═══════════════ 게이트 ═══════════════
-function tryEnter() {
+function tryEnterPw() {
   const pw = el.pwInput.value.trim();
-  if (!pw) { el.pwErr.textContent = "암호를 입력해 주세요."; return; }
+  if (!pw) { el.gateErr.textContent = "암호를 입력해 주세요."; return; }
   localStorage.setItem(LS.pw, pw);
-  el.pwErr.textContent = "";
+  localStorage.removeItem(LS.key);
+  el.gateErr.textContent = "";
   el.pwInput.value = "";
+  renderSetup();
   show(el.setup);
 }
 
+function tryEnterKey() {
+  const key = el.keyInput.value.trim();
+  if (key.length < 20) { el.gateErr.textContent = "API 키가 너무 짧아요. AIza…로 시작하는 키 전체를 붙여넣어 주세요."; return; }
+  localStorage.setItem(LS.key, key);
+  localStorage.removeItem(LS.pw);
+  el.gateErr.textContent = "";
+  el.keyInput.value = "";
+  renderSetup();
+  show(el.setup);
+}
+
+function resetAuth() {
+  localStorage.removeItem(LS.pw);
+  localStorage.removeItem(LS.key);
+  show(el.gate);
+}
+
 // ═══════════════ 이벤트 바인딩 ═══════════════
-el.pwBtn.addEventListener("click", tryEnter);
-el.pwInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tryEnter(); });
+el.pwBtn.addEventListener("click", tryEnterPw);
+el.pwInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tryEnterPw(); });
+el.keyBtn.addEventListener("click", tryEnterKey);
+el.keyInput.addEventListener("keydown", (e) => { if (e.key === "Enter") tryEnterKey(); });
 el.startBtn.addEventListener("click", startChat);
 el.backBtn.addEventListener("click", backToSetup);
 el.ttsBtn.addEventListener("click", toggleTTS);
@@ -645,6 +1117,16 @@ el.txtInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMess
 el.txtInput.addEventListener("input", () => {
   el.sendBtn.classList.toggle("show", el.txtInput.value.trim().length > 0);
 });
+el.exprNavBtn.addEventListener("click", () => { renderExprList(); switchExprTab(false); show(el.expr); });
+el.exprBackBtn.addEventListener("click", () => { renderSetup(); show(el.setup); });
+el.tabList.addEventListener("click", () => switchExprTab(false));
+el.tabQuiz.addEventListener("click", () => switchExprTab(true));
+el.quizMainBtn.addEventListener("click", quizMain);
+el.quizListenBtn.addEventListener("click", quizListen);
+el.histNavBtn.addEventListener("click", () => { renderHistList(); show(el.hist); });
+el.histBackBtn.addEventListener("click", () => { renderSetup(); show(el.setup); });
+el.hvBackBtn.addEventListener("click", () => { show(el.hist); });
+el.resetLink.addEventListener("click", resetAuth);
 
 // ═══════════════ 초기화 ═══════════════
 (function init() {
@@ -657,7 +1139,7 @@ el.txtInput.addEventListener("input", () => {
 
   renderSetup();
 
-  if (localStorage.getItem(LS.pw)) show(el.setup);
+  if (localStorage.getItem(LS.pw) || localStorage.getItem(LS.key)) show(el.setup);
   else show(el.gate);
 })();
 </script>
