@@ -27,7 +27,6 @@
   button{font-family:inherit; border:none; cursor:pointer; background:none;}
   input{font-family:inherit;}
 
-  /* ── 공통 ── */
   .h-display{font-family:'Plus Jakarta Sans','Apple SD Gothic Neo',sans-serif; font-weight:800;}
   .pad{padding:0 24px;}
   .brand{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
@@ -40,7 +39,7 @@
   .gate-title{font-size:30px; line-height:1.15; margin-top:14px;}
   .gate-sub{color:var(--muted); font-size:14px; margin-top:10px; line-height:1.5;}
   .gate-row{display:flex; gap:8px; margin-top:24px;}
-  .gate-input{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; font-size:16px; outline:none; color:var(--ink);}
+  .gate-input{flex:1; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; font-size:16px; outline:none; color:var(--ink); min-width:0;}
   .gate-input:focus{border-color:var(--teal);}
   .gate-btn{background:var(--ink); color:#fff; border-radius:16px; padding:0 20px; font-weight:700; font-size:15px;}
   .gate-err{color:var(--coral); font-size:13px; margin-top:10px; min-height:18px; font-weight:600;}
@@ -62,7 +61,7 @@
   .lv-btn.on{background:var(--teal); border-color:var(--teal); color:#fff;}
   .start-btn{width:100%; background:var(--ink); color:#fff; border-radius:18px; padding:16px 0; font-weight:700; font-size:16px; margin-top:34px; display:flex; align-items:center; justify-content:center; gap:8px;}
   .start-btn:active{transform:scale(.99);}
-  .setup-hint{color:var(--muted); font-size:12px; text-align:center; margin-top:12px;}
+  .setup-hint{color:var(--muted); font-size:12px; text-align:center; margin-top:12px; line-height:1.6;}
 
   /* ── 채팅 ── */
   .chat-head{display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--line); flex-shrink:0;}
@@ -97,14 +96,13 @@
   .err-banner{display:none; background:var(--coral-soft); border:1px solid #F5C9BC; color:#B0492F; border-radius:12px; padding:9px 12px; font-size:13px; line-height:1.45; margin-bottom:8px;}
   .err-banner.show{display:block;}
   .in-row{display:flex; align-items:flex-end; gap:8px;}
-  .in-box{flex:1; display:flex; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:10px 14px;}
-  .in-box input{flex:1; border:none; outline:none; background:transparent; font-size:15.5px; color:var(--ink);}
+  .in-box{flex:1; display:flex; align-items:center; background:var(--card); border:1px solid var(--line); border-radius:18px; padding:10px 14px; min-width:0;}
+  .in-box input{flex:1; border:none; outline:none; background:transparent; font-size:15.5px; color:var(--ink); min-width:0;}
   .send-btn{display:none; width:30px; height:30px; border-radius:50%; background:var(--teal); color:#fff; align-items:center; justify-content:center; flex-shrink:0;}
   .send-btn.show{display:flex;}
   .mic-btn{position:relative; width:54px; height:54px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform .08s;}
   .mic-btn:active{transform:scale(.94);}
   .mic-btn.listening{background:var(--coral); box-shadow:0 6px 18px rgba(238,106,77,.4);}
-  .mic-btn.disabled{background:#C9C2B6;}
   .ring{position:absolute; inset:0; border-radius:50%; border:2px solid var(--coral); animation:ring 1.4s ease-out infinite;}
 
   @keyframes up{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
@@ -159,7 +157,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
         대화 시작하기
       </button>
-      <p class="setup-hint">마이크를 눌러 말하거나, 직접 타이핑해도 돼요.</p>
+      <p class="setup-hint">🎤 버튼을 누르고 말한 뒤, 다시 누르면 전송돼요.<br>직접 타이핑해도 됩니다.</p>
     </div>
   </div>
 
@@ -219,6 +217,7 @@ const LEVELS = [
   { id: "advanced",     label: "고급", rate: 1.02 },
 ];
 const START_TOKEN = "__START__";
+const MAX_REC_MS = 30000; // 녹음 최대 30초 (자동 전송)
 const LS = { pw: "et_pw", sc: "et_sc", lv: "et_lv", tts: "et_tts" };
 
 const ERR_MSG = {
@@ -238,9 +237,8 @@ const state = {
   level: LEVELS[1],
   messages: [],      // {role:'user'|'ai', content}
   thinking: false,
-  listening: false,
+  listening: false,  // 녹음 중
   ttsOn: true,
-  micState: "idle",  // idle | unsupported | blocked
 };
 
 // ═══════════════ 요소 ═══════════════
@@ -283,7 +281,7 @@ function renderSetup() {
   });
 }
 
-// ═══════════════ TTS ═══════════════
+// ═══════════════ TTS (음성 출력) ═══════════════
 let voices = [];
 function loadVoices() { if (window.speechSynthesis) voices = window.speechSynthesis.getVoices() || []; }
 loadVoices();
@@ -319,80 +317,102 @@ function primeTTS() {
   } catch (e) {}
 }
 
-// ═══════════════ STT (Web Speech API) ═══════════════
-let recog = null;
-let finalText = "";
+// ═══════════════ 음성 녹음 (MediaRecorder → Gemini 오디오) ═══════════════
+let mediaRecorder = null;
+let recChunks = [];
+let recStream = null;
+let recTimer = null;
 
-function initSTT() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { state.micState = "unsupported"; updateMicUI(); return; }
-  recog = new SR();
-  recog.lang = "en-US";
-  recog.interimResults = true;
-  recog.continuous = false;
-
-  recog.onresult = (ev) => {
-    let interim = "";
-    for (let i = ev.resultIndex; i < ev.results.length; i++) {
-      const tr = ev.results[i][0].transcript;
-      if (ev.results[i].isFinal) finalText += tr + " ";
-      else interim += tr;
-    }
-    el.live.textContent = (finalText + interim).trim() ? "“" + (finalText + interim).trim() + "”" : "";
-  };
-  recog.onerror = (ev) => {
-    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
-      state.micState = "blocked";
-      showError("마이크 권한이 차단됐어요. 브라우저 주소창의 자물쇠 아이콘에서 마이크를 허용해 주세요.");
-    } else if (ev.error === "no-speech") {
-      el.live.textContent = "";
-    }
-    state.listening = false;
-    updateMicUI();
-  };
-  recog.onend = () => {
-    state.listening = false;
-    updateMicUI();
-    const t = finalText.trim();
-    finalText = "";
-    el.live.textContent = "";
-    if (t) sendMessage(t);
-  };
+function pickMime() {
+  if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return "";
+  if (MediaRecorder.isTypeSupported("audio/webm")) return "audio/webm";   // 크롬/안드로이드
+  if (MediaRecorder.isTypeSupported("audio/mp4")) return "audio/mp4";     // iOS 사파리
+  return "";
 }
 
-function toggleMic() {
-  if (state.micState === "unsupported") {
-    showError("이 브라우저는 음성 인식을 지원하지 않아요. 크롬 또는 사파리를 사용해 주세요. (타이핑은 가능해요)");
+async function toggleMic() {
+  if (state.thinking) return;
+  if (state.listening) { stopRecording(); return; }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    showError("이 브라우저는 녹음을 지원하지 않아요. 사파리 또는 크롬 최신 버전을 사용해 주세요.");
     return;
   }
-  if (!recog) return;
-  if (state.listening) { try { recog.stop(); } catch (e) {} return; }
-  if (state.thinking) return;
   try {
-    finalText = "";
-    el.live.textContent = "듣고 있어요… 말해보세요";
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    recog.start();
-    state.listening = true;
-    state.micState = "idle";
-    hideError();
-    updateMicUI();
+    recStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch (e) {
+    showError("마이크 권한이 필요해요. 브라우저 주소창(자물쇠 또는 'ㅁA' 아이콘)에서 마이크를 허용해 주세요.");
+    return;
+  }
+  try {
+    const mime = pickMime();
+    mediaRecorder = mime
+      ? new MediaRecorder(recStream, { mimeType: mime })
+      : new MediaRecorder(recStream);
+    recChunks = [];
+    mediaRecorder.ondataavailable = (ev) => { if (ev.data && ev.data.size > 0) recChunks.push(ev.data); };
+    mediaRecorder.onstop = onRecordingStop;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    mediaRecorder.start();
+    state.listening = true;
+    hideError();
+    el.live.textContent = "🔴 듣고 있어요… 다 말한 뒤 버튼을 다시 누르세요";
+    updateMicUI();
+    recTimer = setTimeout(() => { if (state.listening) stopRecording(); }, MAX_REC_MS);
+  } catch (e) {
+    cleanupStream();
     state.listening = false;
     updateMicUI();
+    showError("녹음을 시작하지 못했어요. 한 번 더 시도해 주세요.");
   }
+}
+
+function stopRecording() {
+  if (recTimer) { clearTimeout(recTimer); recTimer = null; }
+  state.listening = false;
+  updateMicUI();
+  el.live.textContent = "";
+  try {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+  } catch (e) {}
+}
+
+function cleanupStream() {
+  if (recStream) {
+    try { recStream.getTracks().forEach((t) => t.stop()); } catch (e) {}
+    recStream = null;
+  }
+}
+
+function onRecordingStop() {
+  cleanupStream();
+  const type = ((mediaRecorder && mediaRecorder.mimeType) || pickMime() || "audio/webm").split(";")[0];
+  const blob = new Blob(recChunks, { type: type });
+  recChunks = [];
+  if (blob.size < 2000) {
+    showError("녹음이 너무 짧아요. 버튼을 누르고 문장을 말한 뒤 다시 눌러 주세요.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64 = String(reader.result).split(",")[1] || "";
+    if (!base64) { showError("녹음 파일 처리에 실패했어요. 다시 시도해 주세요."); return; }
+    sendVoice(base64, type);
+  };
+  reader.onerror = () => showError("녹음 파일 처리에 실패했어요. 다시 시도해 주세요.");
+  reader.readAsDataURL(blob);
 }
 
 function updateMicUI() {
   el.micBtn.classList.toggle("listening", state.listening);
-  el.micBtn.classList.toggle("disabled", state.micState === "unsupported");
   el.micIcon.style.display = state.listening ? "none" : "block";
   el.stopIcon.style.display = state.listening ? "block" : "none";
   const old = el.micBtn.querySelector(".ring");
   if (state.listening && !old) {
     const r = document.createElement("span"); r.className = "ring"; el.micBtn.appendChild(r);
-  } else if (!state.listening && old) { old.remove(); }
-  if (!state.listening && !el.live.textContent.startsWith("“")) el.live.textContent = "";
+  } else if (!state.listening && old) {
+    old.remove();
+  }
 }
 
 // ═══════════════ 메시지 렌더 ═══════════════
@@ -473,17 +493,18 @@ function showError(msg) { el.errBanner.textContent = msg; el.errBanner.classList
 function hideError() { el.errBanner.classList.remove("show"); }
 
 // ═══════════════ 서버 호출 ═══════════════
-async function callServer(userText, history) {
+async function callServer(opts) {
   const body = {
     password: localStorage.getItem(LS.pw) || "",
     scenarioId: state.scenario.id,
     levelId: state.level.id,
-    history: history,
-    userText: userText,
+    history: opts.history || [],
+    userText: opts.userText || "",
+    audio: opts.audio || null,
   };
-  let res, json;
+  let json;
   try {
-    res = await fetch("/api/chat", {
+    const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -495,9 +516,22 @@ async function callServer(userText, history) {
   return json || { ok: false, error: "SERVER" };
 }
 
+function handleFail(out) {
+  if (out.error === "AUTH") {
+    localStorage.removeItem(LS.pw);
+    showError(ERR_MSG.AUTH);
+    setTimeout(() => { show(el.gate); el.pwInput.focus(); }, 900);
+    return;
+  }
+  let msg = ERR_MSG[out.error] || ERR_MSG.SERVER;
+  if (out.detail) msg += " [" + out.detail + "]";
+  showError(msg);
+}
+
+// 텍스트 전송 (타이핑 / 시작 토큰)
 async function sendMessage(raw) {
   const text = (raw != null ? raw : el.txtInput.value).trim();
-  if (!text || state.thinking) return;
+  if (!text || state.thinking || state.listening) return;
   el.txtInput.value = "";
   el.sendBtn.classList.remove("show");
   hideError();
@@ -512,21 +546,12 @@ async function sendMessage(raw) {
 
   state.thinking = true;
   showTyping();
-
-  const out = await callServer(text, historySnapshot);
-
+  const out = await callServer({ userText: text, history: historySnapshot });
   state.thinking = false;
   hideTyping();
 
   if (!out.ok) {
-    if (out.error === "AUTH") {
-      localStorage.removeItem(LS.pw);
-      showError(ERR_MSG.AUTH);
-      setTimeout(() => { show(el.gate); el.pwInput.focus(); }, 900);
-    } else {
-      showError(ERR_MSG[out.error] || ERR_MSG.SERVER);
-    }
-    // 실패한 사용자 발화는 이력에서 제거 (재시도 시 중복 방지)
+    handleFail(out);
     if (!isStart && state.messages.length && state.messages[state.messages.length - 1].content === text) {
       state.messages.pop();
     }
@@ -535,6 +560,37 @@ async function sendMessage(raw) {
 
   const d = out.data || {};
   if (userRow) attachFeedback(userRow, d.feedback);
+  addAiMessage(d.reply || "…", d.reply_ko || "");
+  state.messages.push({ role: "ai", content: d.reply || "" });
+  speak(d.reply || "");
+}
+
+// 음성 전송 (녹음 → Gemini가 받아쓰기 + 응답)
+async function sendVoice(base64, mimeType) {
+  if (state.thinking) return;
+  hideError();
+  el.live.textContent = "🎧 알아듣는 중…";
+
+  const historySnapshot = state.messages.slice(-12);
+  state.thinking = true;
+  showTyping();
+  const out = await callServer({ audio: { data: base64, mimeType: mimeType }, history: historySnapshot });
+  state.thinking = false;
+  hideTyping();
+  el.live.textContent = "";
+
+  if (!out.ok) { handleFail(out); return; }
+
+  const d = out.data || {};
+  const transcript = String(d.transcript || "").trim();
+  if (!transcript) {
+    showError("음성을 알아듣지 못했어요. 조금 더 크고 또렷하게 말해 볼까요?");
+    return;
+  }
+
+  const userRow = addUserMessage(transcript);
+  state.messages.push({ role: "user", content: transcript });
+  attachFeedback(userRow, d.feedback);
   addAiMessage(d.reply || "…", d.reply_ko || "");
   state.messages.push({ role: "ai", content: d.reply || "" });
   speak(d.reply || "");
@@ -554,7 +610,7 @@ function startChat() {
 
 function backToSetup() {
   if (window.speechSynthesis) window.speechSynthesis.cancel();
-  if (state.listening && recog) { try { recog.stop(); } catch (e) {} }
+  if (state.listening) stopRecording();
   show(el.setup);
 }
 
@@ -600,7 +656,6 @@ el.txtInput.addEventListener("input", () => {
   if (savedTts === "0") { state.ttsOn = false; el.ttsBtn.classList.remove("tts-on"); el.ttsOnIcon.style.display = "none"; el.ttsOffIcon.style.display = "block"; }
 
   renderSetup();
-  initSTT();
 
   if (localStorage.getItem(LS.pw)) show(el.setup);
   else show(el.gate);
