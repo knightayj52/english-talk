@@ -1,12 +1,13 @@
 // ============================================================
-// english-talk v2 : Gemini 프록시 (Vercel Serverless Function)
+// english-talk v3 : Gemini 프록시 (Vercel Serverless Function)
 // 경로: /api/chat.js
-// v2 변경: 음성 입력을 오디오 파일로 받아 Gemini가 직접
-//          받아쓰기(transcript) + 응답을 한 번에 처리
+// v3 변경: 사용자가 자신의 Gemini API 키로 접속하는 모드 추가
+//   - userApiKey가 오면 그 키로 호출 (다른 사용자용, 사용량 각자 부담)
+//   - 없으면 APP_PASSWORD 검증 후 서버의 GEMINI_API_KEY 사용 (영쌤 전용)
 //
 // Vercel 환경변수:
-//   GEMINI_API_KEY  (필수)
-//   APP_PASSWORD    (필수)
+//   GEMINI_API_KEY  (필수) 영쌤 키
+//   APP_PASSWORD    (필수) 영쌤 접속 암호
 //   GEMINI_MODEL    (선택, 기본 gemini-2.5-flash-lite)
 // ============================================================
 
@@ -39,8 +40,7 @@ function buildSystemPrompt(scenarioId, levelId) {
   const scenario = SCENARIOS[scenarioId] || SCENARIOS.free;
   const level = LEVELS[levelId] || LEVELS.intermediate;
   return [
-    'You are "Joy", a warm, patient English conversation partner helping a Korean adult',
-    "(an elementary school teacher) practice spoken English.",
+    'You are "Joy", a warm, patient English conversation partner helping a Korean adult practice spoken English.',
     "",
     "CONTEXT",
     "- Scenario: " + scenario,
@@ -104,26 +104,33 @@ export default async function handler(req, res) {
   try {
     const body = req.body || {};
     const password = body.password;
+    const userApiKey = String(body.userApiKey || "").trim();
     const scenarioId = body.scenarioId;
     const levelId = body.levelId;
     const history = Array.isArray(body.history) ? body.history : [];
     const userText = String(body.userText || "").trim();
     const audio = body.audio && body.audio.data ? body.audio : null;
 
-    if (!process.env.APP_PASSWORD || password !== process.env.APP_PASSWORD) {
+    // ── 인증/키 선택 ──
+    // 1) 사용자가 자기 키를 보냈으면 그 키를 사용 (사용량 각자 부담)
+    // 2) 아니면 접속 암호 확인 후 서버(영쌤) 키 사용
+    let apiKey = "";
+    if (userApiKey) {
+      apiKey = userApiKey;
+    } else if (process.env.APP_PASSWORD && password === process.env.APP_PASSWORD) {
+      apiKey = process.env.GEMINI_API_KEY || "";
+      if (!apiKey) return res.status(200).json({ ok: false, error: "NO_KEY" });
+    } else {
       return res.status(200).json({ ok: false, error: "AUTH" });
     }
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return res.status(200).json({ ok: false, error: "NO_KEY" });
-    }
+
     if (!userText && !audio) {
       return res.status(200).json({ ok: false, error: "EMPTY" });
     }
 
     const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 
-    // 대화 이력 (최근 12턴, 텍스트만 - transcript가 이력에 남으므로 토큰 부담 없음)
+    // 대화 이력 (최근 12턴, 텍스트만)
     const contents = [];
     history.slice(-12).forEach(function (m) {
       if (!m || !m.content) return;
@@ -187,8 +194,8 @@ export default async function handler(req, res) {
       if (code === 429 || /RESOURCE_EXHAUSTED/i.test(msg)) {
         return res.status(200).json({ ok: false, error: "RATE" });
       }
-      if (code === 400 && /API key/i.test(msg)) {
-        return res.status(200).json({ ok: false, error: "BAD_KEY", detail: msg });
+      if (/API key/i.test(msg)) {
+        return res.status(200).json({ ok: false, error: "BAD_KEY" });
       }
       return res.status(200).json({ ok: false, error: "GEMINI", detail: String(msg).slice(0, 200) });
     }
