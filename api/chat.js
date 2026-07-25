@@ -1,11 +1,13 @@
 // ============================================================
-// english-talk : Gemini 프록시 (Vercel Serverless Function)
+// english-talk v2 : Gemini 프록시 (Vercel Serverless Function)
 // 경로: /api/chat.js
+// v2 변경: 음성 입력을 오디오 파일로 받아 Gemini가 직접
+//          받아쓰기(transcript) + 응답을 한 번에 처리
 //
-// Vercel 환경변수 (Settings → Environment Variables):
-//   GEMINI_API_KEY  (필수) Google AI Studio에서 발급한 키
-//   APP_PASSWORD    (필수) 앱 접속 암호 (영쌤이 원하는 문자열)
-//   GEMINI_MODEL    (선택) 기본값 gemini-2.5-flash-lite
+// Vercel 환경변수:
+//   GEMINI_API_KEY  (필수)
+//   APP_PASSWORD    (필수)
+//   GEMINI_MODEL    (선택, 기본 gemini-2.5-flash-lite)
 // ============================================================
 
 const SCENARIOS = {
@@ -25,6 +27,14 @@ const LEVELS = {
 
 const START_TOKEN = "__START__";
 
+const AUDIO_INSTRUCTION =
+  "(This is the learner's spoken English audio. First, transcribe EXACTLY what the learner said " +
+  "into the 'transcript' field, in English. The learner is Korean, so be generous with " +
+  "Korean-accented pronunciation and transcribe the words they intended. " +
+  "Then respond to what they said, in character. " +
+  "If the audio is silent or impossible to understand, set transcript to an empty string " +
+  "and in 'reply' gently ask them to try speaking again.)";
+
 function buildSystemPrompt(scenarioId, levelId) {
   const scenario = SCENARIOS[scenarioId] || SCENARIOS.free;
   const level = LEVELS[levelId] || LEVELS.intermediate;
@@ -43,10 +53,11 @@ function buildSystemPrompt(scenarioId, levelId) {
     "- Vary your expressions; do not repeat the same sentence patterns every turn.",
     "",
     "FEEDBACK on the learner's LATEST message",
-    "- Check grammar, word choice, and naturalness.",
+    "- Check grammar, word choice, and naturalness of what the learner said (the transcript if audio).",
     '- If there is a real error or unnatural phrasing: set hasIssue=true, give the natural full corrected sentence in "corrected",',
     '  and a SHORT "explanation" written in KOREAN (1-2 sentences, friendly tone).',
     "- If the message is already natural: hasIssue=false, corrected and explanation must be empty strings.",
+    "- Do NOT flag punctuation or capitalization issues for spoken audio; judge only the words.",
     "- Be encouraging. Do not nitpick tiny things at beginner level.",
     "",
     'Also give a natural KOREAN translation of your reply in "reply_ko".',
@@ -58,6 +69,10 @@ function buildSystemPrompt(scenarioId, levelId) {
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
   properties: {
+    transcript: {
+      type: "STRING",
+      description: "For audio input: exact English transcription of what the learner said. For text input: empty string.",
+    },
     reply: { type: "STRING", description: "Joy's spoken English reply, 1-3 sentences, ends with a question" },
     reply_ko: { type: "STRING", description: "Natural Korean translation of reply" },
     feedback: {
@@ -70,10 +85,9 @@ const RESPONSE_SCHEMA = {
       required: ["hasIssue", "corrected", "explanation"],
     },
   },
-  required: ["reply", "reply_ko", "feedback"],
+  required: ["transcript", "reply", "reply_ko", "feedback"],
 };
 
-// 코드펜스/앞뒤 잡음이 섞여도 JSON만 뽑아내는 보조 파서
 function looseParse(text) {
   let t = String(text || "").replace(/```json/gi, "").replace(/```/g, "").trim();
   const s = t.indexOf("{");
@@ -94,24 +108,22 @@ export default async function handler(req, res) {
     const levelId = body.levelId;
     const history = Array.isArray(body.history) ? body.history : [];
     const userText = String(body.userText || "").trim();
+    const audio = body.audio && body.audio.data ? body.audio : null;
 
-    // 1) 접속 암호 검증 (무단 사용으로 무료 한도가 새는 것 방지)
     if (!process.env.APP_PASSWORD || password !== process.env.APP_PASSWORD) {
       return res.status(200).json({ ok: false, error: "AUTH" });
     }
-
-    // 2) 키 확인
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(200).json({ ok: false, error: "NO_KEY" });
     }
-    if (!userText) {
+    if (!userText && !audio) {
       return res.status(200).json({ ok: false, error: "EMPTY" });
     }
 
     const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 
-    // 3) 대화 이력 구성 (최근 12턴만 유지 - 토큰 절약)
+    // 대화 이력 (최근 12턴, 텍스트만 - transcript가 이력에 남으므로 토큰 부담 없음)
     const contents = [];
     history.slice(-12).forEach(function (m) {
       if (!m || !m.content) return;
@@ -121,13 +133,28 @@ export default async function handler(req, res) {
       });
     });
 
-    const effectiveUserText =
-      userText === START_TOKEN
-        ? "(The learner just opened the app. Greet them warmly in character, in English, and ask ONE easy opening question to start the scenario. hasIssue must be false.)"
-        : userText;
-    contents.push({ role: "user", parts: [{ text: effectiveUserText }] });
+    // 마지막 사용자 턴: 오디오 또는 텍스트
+    if (audio) {
+      contents.push({
+        role: "user",
+        parts: [
+          {
+            inlineData: {
+              mimeType: String(audio.mimeType || "audio/webm").split(";")[0],
+              data: String(audio.data),
+            },
+          },
+          { text: AUDIO_INSTRUCTION },
+        ],
+      });
+    } else {
+      const effectiveUserText =
+        userText === START_TOKEN
+          ? "(The learner just opened the app. Greet them warmly in character, in English, and ask ONE easy opening question to start the scenario. transcript must be an empty string and hasIssue must be false.)"
+          : userText;
+      contents.push({ role: "user", parts: [{ text: effectiveUserText }] });
+    }
 
-    // 4) Gemini 호출
     const url =
       "https://generativelanguage.googleapis.com/v1beta/models/" +
       encodeURIComponent(model) +
@@ -163,7 +190,7 @@ export default async function handler(req, res) {
       if (code === 400 && /API key/i.test(msg)) {
         return res.status(200).json({ ok: false, error: "BAD_KEY", detail: msg });
       }
-      return res.status(200).json({ ok: false, error: "GEMINI", detail: msg });
+      return res.status(200).json({ ok: false, error: "GEMINI", detail: String(msg).slice(0, 200) });
     }
 
     const parts =
@@ -179,7 +206,11 @@ export default async function handler(req, res) {
       .join("");
 
     if (!rawText) {
-      return res.status(200).json({ ok: false, error: "EMPTY_RESPONSE" });
+      const reason =
+        (data.candidates && data.candidates[0] && data.candidates[0].finishReason) || "";
+      return res
+        .status(200)
+        .json({ ok: false, error: "EMPTY_RESPONSE", detail: String(reason).slice(0, 100) });
     }
 
     let parsed;
@@ -189,8 +220,8 @@ export default async function handler(req, res) {
       try {
         parsed = looseParse(rawText);
       } catch (e2) {
-        // 최후 폴백: 원문을 그대로 대사로 사용
         parsed = {
+          transcript: "",
           reply: rawText.slice(0, 500),
           reply_ko: "",
           feedback: { hasIssue: false, corrected: "", explanation: "" },
@@ -201,11 +232,12 @@ export default async function handler(req, res) {
     if (!parsed.feedback) {
       parsed.feedback = { hasIssue: false, corrected: "", explanation: "" };
     }
+    if (typeof parsed.transcript !== "string") parsed.transcript = "";
 
     return res.status(200).json({ ok: true, data: parsed });
   } catch (err) {
     return res
       .status(200)
-      .json({ ok: false, error: "SERVER", detail: String((err && err.message) || err) });
+      .json({ ok: false, error: "SERVER", detail: String((err && err.message) || err).slice(0, 200) });
   }
 }
